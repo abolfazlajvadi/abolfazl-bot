@@ -17,6 +17,6 @@ def fortune(message):
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
     bot.reply_to(message, message.text)
-
+bot.remove_webnook()
 print("ربات روشن شد...")
 bot.infinity_polling()
