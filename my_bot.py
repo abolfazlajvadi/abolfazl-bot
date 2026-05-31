@@ -1,8 +1,8 @@
 import telebot
+import os
 import random
 
-TOKEN = "8736361524:AAHDQ2SBL2fmHrKp_wJuP8uc7ultBDB85c4"
-
+TOKEN = os.environ.get('TELEGRAM_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 
 @bot.message_handler(commands=['start'])
@@ -17,6 +17,10 @@ def fortune(message):
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
     bot.reply_to(message, message.text)
-bot.remove_webnook()
+
+# ========== درست سر جای خودش ==========
+bot.remove_webhook()   # <--- این خط باید اینجا باشد، نه داخل تابع
+# ======================================
+
 print("ربات روشن شد...")
-bot.infinity_polling()
+bot.infinity_polling(none_stop=True)
