@@ -1,10 +1,13 @@
 import telebot
 import os
 import random
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 TOKEN = os.environ.get('TELEGRAM_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 
+# ----- دستورات ربات -----
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, "سلام! به ربات من خوش اومدی 👋")
@@ -18,9 +21,22 @@ def fortune(message):
 def echo_message(message):
     bot.reply_to(message, message.text)
 
-# ========== درست سر جای خودش ==========
-bot.remove_webhook()   # <--- این خط باید اینجا باشد، نه داخل تابع
-# ======================================
+# ----- سرور HTTP ساده برای Render (پورت 8000) -----
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"OK")
 
-print("ربات روشن شد...")
+def run_http_server():
+    server = HTTPServer(('0.0.0.0', 8000), HealthCheckHandler)
+    server.serve_forever()
+
+# اجرای سرور HTTP در یک ترد جداگانه (همزمان با ربات)
+http_thread = threading.Thread(target=run_http_server, daemon=True)
+http_thread.start()
+
+# ----- اجرای ربات -----
+bot.remove_webhook()   # پاک کردن webhook قبلی
+print("ربات روشن شد... (HTTP server on port 8000)")
 bot.infinity_polling(none_stop=True)
