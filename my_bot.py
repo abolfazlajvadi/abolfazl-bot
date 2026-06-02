@@ -21,6 +21,22 @@ def fortune(message):
 def echo_message(message):
     bot.reply_to(message, message.text)
 
+# ========== کد جدید را اینجا قرار بده ==========
+@bot.message_handler(content_types=['video', 'document'])
+def get_file_id(message):
+    try:
+        if message.video:
+            file_id = message.video.file_id
+            bot.reply_to(message, f"🎬 File ID ویدیو:\n`{file_id}`", parse_mode='Markdown')
+        elif message.document and message.document.mime_type.startswith('video/'):
+            file_id = message.document.file_id
+            bot.reply_to(message, f"📁 File ID فایل ویدیویی:\n`{file_id}`", parse_mode='Markdown')
+        else:
+            bot.reply_to(message, "❌ لطفاً یک فایل ویدیویی ارسال کن.")
+    except Exception as e:
+        bot.reply_to(message, "خطا در دریافت اطلاعات فایل.")
+# =============================================
+
 # ----- سرور HTTP ساده برای Render (پورت 8000) -----
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
